@@ -1,4 +1,4 @@
-# js-express-js
+# jl-express-js [![Build Status](https://travis-ci.org/wolox-training/jl-express-js.svg?branch=master)](https://travis-ci.org/wolox-training/jl-express-js)
 
 kickoff for expressjs applications
 
