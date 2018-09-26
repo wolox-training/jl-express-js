@@ -1,19 +1,11 @@
 'use strict';
 
-const errors = require('../errors');
 const logger = require('../logger');
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
     'user',
     {
-      id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-        allowNull: false,
-        unique: true
-      },
       firstName: {
         type: DataTypes.STRING,
         allowNull: false
@@ -33,7 +25,8 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     {
-      timestamps: false
+      paranoid: true,
+      underscored: true
     }
   );
 
@@ -53,15 +46,21 @@ module.exports = (sequelize, DataTypes) => {
   //   };
 
   User.createModel = user => {
-    return User.create(user).then((success, err) => {
-      if (err) {
-        console.log('########## ERROR ############\n');
-        console.log(err);
+    return User.create(user)
+      .then((success, err) => {
+        if (err) {
+          console.log('########## ERROR ############\n');
+          console.log(err);
+          console.log('\n######################\n');
+        } else {
+          logger.info(`User ${success.dataValues.firstName} created correctly.`);
+        }
+      })
+      .catch(err => {
+        console.log('######################\n');
+        console.log(err.parent);
         console.log('\n######################\n');
-      } else {
-        logger.info(`User ${success.dataValues.firstName} created correctly.`);
-      }
-    });
+      });
   };
   return User;
 };
