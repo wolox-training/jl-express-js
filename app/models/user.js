@@ -1,40 +1,33 @@
 module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define('User', {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
-      allowNull: false,
-      unique: true
+  const User = sequelize.define(
+    'user',
+    {
+      firstName: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      lastName: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false
+      }
     },
-    firstName: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    lastName: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false
+    {
+      paranoid: true,
+      freezeTableName: true,
+      underscored: true
     }
-  });
+  );
 
-  User.associate = function(models) {};
-
-  User.createModel = user => {
-    return User.create(user).catch(err => {});
-  };
+  User.createModel = user => User.create(user);
 
   return User;
 };
-
-// console.log('######################\n');
-// console.log(model);
-// console.log('\n######################\n');
