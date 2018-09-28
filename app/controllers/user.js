@@ -2,47 +2,37 @@
 
 const bcrypt = require('bcrypt'),
   saltRounds = 10,
-  salt = bcrypt.genSaltSync(saltRounds);
+  salt = bcrypt.genSaltSync(saltRounds),
+  { validateEmail, validatePassword } = require('./validations'),
+  errors = require('../errors'),
+  User = require('../models').users;
 
-const User = require('../models').users;
+exports.singUp = (req, res, next) => {
+  const user = req.body
+    ? {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        password: req.body.password
+      }
+    : {};
 
-const validateEmail = valor => {
-  if (/^\w+([\.-]?\w+)@wolox+(\.\w{2,3})+$/.test(valor)) {
-    return true;
-  } else {
-    return false;
+  if (!validateEmail(user.email)) {
+    return next(errors.emailError('Invalid email'));
   }
-};
 
-const validatePassword = valor => {
-  if (/^(?=\w*\d)(?=\w*[A-Z])(?=\w*[a-z])\S{8,}$/.test(valor)) {
-    return true;
-  } else {
-    return false;
-  }
-};
-
-const singUp = (req, res) => {
-  const user = {};
-
-  user.firstName = req.body.firstName ? req.body.firstName : '';
-  user.lastName = req.body.lastName ? req.body.lastName : '';
-  user.email = req.body.email ? req.body.email : '';
-  user.password = req.body.password ? req.body.password : '';
-
-  if (!validateEmail(user.email) || !validatePassword(user.password)) {
-    res.status(302).send('Error');
-    return;
+  if (!validatePassword(user.password)) {
+    return next(errors.passwordError('Invalid password'));
   }
 
   user.password = bcrypt.hashSync(user.password, salt);
 
-  User.createModel(user).then(u => {
-    res.status(200).send('User created correctly.');
-    res.end();
-  });
-};
-
-module.exports = {
-  singUp
+  return User.createModel(user)
+    .then(() => {
+      res.status(201).send(`User created correctly.`);
+      res.end();
+    })
+    .catch(err => {
+      next(err);
+    });
 };

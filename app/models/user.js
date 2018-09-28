@@ -1,6 +1,7 @@
 'use strict';
 
 const logger = require('../logger');
+const errors = require('../errors');
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
@@ -33,12 +34,13 @@ module.exports = (sequelize, DataTypes) => {
 
   User.createModel = user => {
     return User.create(user)
-      .then((success, err) => {
+      .then(success => {
         logger.info(`User ${success.dataValues.firstName} created correctly.`);
       })
       .catch(err => {
         logger.info(`${user.firstName} user no created.`);
         logger.error(err);
+        throw errors.databaseError(err);
       });
   };
   return User;
