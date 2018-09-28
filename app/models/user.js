@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
-    'user',
+    'users',
     {
       firstName: {
         type: DataTypes.STRING,
@@ -26,8 +26,6 @@ module.exports = (sequelize, DataTypes) => {
       underscored: true
     }
   );
-
-  User.createModel = user => User.create(user);
 
   return User;
 };
