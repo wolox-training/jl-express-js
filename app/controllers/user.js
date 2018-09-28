@@ -30,9 +30,6 @@ const singUp = (req, res) => {
   user.email = req.body.email ? req.body.email : '';
   user.password = req.body.password ? req.body.password : '';
 
-  console.log(`THE EMAIL IS: ${validateEmail(user.email)}`);
-  console.log(`THE PASSWORD IS: ${validatePassword(user.password)}`);
-
   if (!validateEmail(user.email) || !validatePassword(user.password)) {
     res.status(302).send('Error');
     return;

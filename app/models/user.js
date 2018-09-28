@@ -38,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
       })
       .catch(err => {
         logger.info(`${user.firstName} user no created.`);
-        logger.error(err.parent);
+        logger.error(err);
       });
   };
   return User;
