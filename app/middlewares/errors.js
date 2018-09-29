@@ -8,6 +8,7 @@ const statusCodes = {
   [errors.BOOK_NOT_FOUND]: 404,
   [errors.SAVING_ERROR]: 400,
   [errors.DATABASE_ERROR]: 503,
+  [errors.MISSING_VALUE]: 404,
   [errors.EMAIL_ERROR]: 400,
   [errors.EMAIL_DUPLICATE_ERROR]: 400,
   [errors.PASSWORD_ERROR]: 400,

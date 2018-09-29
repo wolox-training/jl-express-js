@@ -9,6 +9,9 @@ exports.defaultError = message => internalError(message, exports.DEFAULT_ERROR);
 exports.DATABASE_ERROR = 'database_error';
 exports.databaseError = message => internalError(message, exports.DATABASE_ERROR);
 
+exports.MISSING_VALUE = 'missing_value';
+exports.missingValue = () => internalError('missing value', exports.MISSING_VALUE);
+
 exports.EMAIL_ERROR = 'email_is_invalid';
 exports.emailError = () => internalError('Invalid email', exports.EMAIL_ERROR);
 
