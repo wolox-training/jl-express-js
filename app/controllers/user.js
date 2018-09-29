@@ -8,6 +8,7 @@ const bcrypt = require('bcrypt'),
   User = require('../models').users;
 
 exports.singUp = (req, res, next) => {
+  const signErrors = [];
   const user = req.body
     ? {
         firstName: req.body.firstName,
@@ -17,13 +18,11 @@ exports.singUp = (req, res, next) => {
       }
     : {};
 
-  if (!validateEmail(user.email)) {
-    return next(errors.emailError('Invalid email'));
-  }
+  if (!validateEmail(user.email)) signErrors.push(errors.emailError());
 
-  if (!validatePassword(user.password)) {
-    return next(errors.passwordError('Invalid password'));
-  }
+  if (!validatePassword(user.password)) signErrors.push(errors.passwordError());
+
+  if (signErrors.length) throw errors.signupError(signErrors);
 
   user.password = bcrypt.hashSync(user.password, salt);
 
