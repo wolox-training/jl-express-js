@@ -1,7 +1,8 @@
 'use strict';
 
-const { singUp } = require('./controllers/user');
+const { singUp, singIn } = require('./controllers/user');
 
 exports.init = app => {
   app.post('/users/', singUp);
+  app.post('/users/sessions/', singIn);
 };

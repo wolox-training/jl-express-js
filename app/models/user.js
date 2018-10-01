@@ -48,5 +48,14 @@ module.exports = (sequelize, DataTypes) => {
         }
         throw errors.databaseError(err);
       });
+
+  User.getUserByEmailAndPassword = email =>
+    User.findOne({
+      where: {
+        email
+      },
+      order: [['createdAt', 'DESC']]
+    });
+
   return User;
 };

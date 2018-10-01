@@ -35,3 +35,7 @@ exports.singUp = (req, res, next) => {
       next(err);
     });
 };
+
+exports.singIn = (req, res, next) => {
+  res.send('pong');
+};
