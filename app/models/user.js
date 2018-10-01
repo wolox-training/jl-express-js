@@ -41,9 +41,7 @@ module.exports = (sequelize, DataTypes) => {
         logger.info(`${user.firstName} user no created.`);
         logger.error(err);
         if (err.name === 'SequelizeUniqueConstraintError') {
-          const signErrors = [];
-          signErrors.push('User already exist');
-          throw errors.signupError(signErrors);
+          throw errors.signupError(['User already exist']);
         }
         throw errors.databaseError(err);
       });
