@@ -3,12 +3,11 @@
 const bcrypt = require('bcrypt'),
   saltRounds = 10,
   salt = bcrypt.genSaltSync(saltRounds),
-  { validateEmail, validatePassword } = require('./validations'),
   errors = require('../errors'),
+  { validations } = require('./validations'),
   User = require('../models').users;
 
-exports.singUp = (req, res, next) => {
-  const signErrors = [];
+exports.singUp = async (req, res, next) => {
   const user = req.body
     ? {
         firstName: req.body.firstName,
@@ -18,20 +17,20 @@ exports.singUp = (req, res, next) => {
       }
     : {};
 
-  if (!validateEmail(user.email)) signErrors.push(errors.emailError());
+  const signErrors = await validations(user);
 
-  if (!validatePassword(user.password)) signErrors.push(errors.passwordError());
+  try {
+    if (signErrors.length) throw errors.signupError(signErrors);
 
-  if (signErrors.length) throw errors.signupError(signErrors);
+    user.password = bcrypt.hashSync(user.password, salt);
 
-  user.password = bcrypt.hashSync(user.password, salt);
-
-  return User.createModel(user)
-    .then(() => {
-      res.status(201).send(`User created correctly.`);
-      res.end();
-    })
-    .catch(err => {
-      next(err);
-    });
+    return User.createModel(user)
+      .then(() => {
+        res.status(201).send(`User created correctly.`);
+        res.end();
+      })
+      .catch(next);
+  } catch (err) {
+    next(err);
+  }
 };
