@@ -39,7 +39,7 @@ describe('users', () => {
         });
     });
 
-    it('should fail, missing field', () => {
+    it('should fail creation of user because missing field in the request', () => {
       return chai
         .request(server)
         .post('/users')
@@ -56,7 +56,7 @@ describe('users', () => {
         });
     });
 
-    it('should fail, email is not valid', () => {
+    it('should fail creation of user because email is not valid', () => {
       return chai
         .request(server)
         .post('/users/')
@@ -74,7 +74,7 @@ describe('users', () => {
         });
     });
 
-    it('should fail, password is not valid', () => {
+    it('should fail creation of user because password is not valid', () => {
       return chai
         .request(server)
         .post('/users/')
