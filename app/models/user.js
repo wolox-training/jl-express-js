@@ -41,9 +41,7 @@ module.exports = (sequelize, DataTypes) => {
         logger.info(`${user.firstName} user no created.`);
         logger.error(err);
         if (err.name === 'SequelizeUniqueConstraintError') {
-          const signErrors = [];
-          signErrors.push('User already exist');
-          throw errors.signupError(signErrors);
+          throw errors.signupError(['User already exist']);
         }
         throw errors.databaseError(err);
       });
@@ -52,8 +50,15 @@ module.exports = (sequelize, DataTypes) => {
     User.findOne({
       where: {
         email
-      },
-      order: [['createdAt', 'DESC']]
+      }
+    }).catch(err => {
+      throw errors.databaseError(err);
+    });
+
+  User.deleteAll = () =>
+    User.destroy({
+      where: {},
+      truncate: true
     });
 
   return User;

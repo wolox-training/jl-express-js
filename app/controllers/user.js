@@ -4,10 +4,10 @@ const bcrypt = require('bcrypt'),
   saltRounds = 10,
   salt = bcrypt.genSaltSync(saltRounds),
   errors = require('../errors'),
-  { validations } = require('./validations'),
+  { validateUser } = require('./validations'),
   User = require('../models').users;
 
-exports.singUp = async (req, res, next) => {
+exports.singUp = (req, res, next) => {
   const user = req.body
     ? {
         firstName: req.body.firstName,
@@ -17,7 +17,7 @@ exports.singUp = async (req, res, next) => {
       }
     : {};
 
-  const signErrors = await validations(user);
+  const signErrors = validateUser(user);
 
   try {
     if (signErrors.length) throw errors.signupError(signErrors);

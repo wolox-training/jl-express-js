@@ -1,7 +1,12 @@
 const chai = require('chai'),
   dictum = require('dictum.js'),
   server = require('./../app'),
+  User = require('../app/models').users,
   should = chai.should();
+
+beforeEach(async function() {
+  await User.deleteAll();
+});
 
 describe('users', () => {
   describe('/users/ POST', () => {
@@ -15,9 +20,23 @@ describe('users', () => {
           email: 'pepito.perez@wolox.com',
           password: 'Holahola23'
         })
-        .then(res => {
+        .then(async res => {
           res.should.have.status(201);
-          dictum.chai(res);
+          const users = await User.find({
+            where: {
+              firstName: 'pepito',
+              lastName: 'perez',
+              email: 'pepito.perez@wolox.com'
+            }
+          });
+
+          chai.expect(users).to.be.a('object');
+          chai.expect(users.password).to.not.equal('12345678a');
+          chai.expect(users.firstName).to.be.a('string');
+          chai.expect(users.firstName).to.be.equal('pepito');
+          chai.expect(users.email).to.be.equal('pepito.perez@wolox.com');
+
+          dictum.chai(res, 'create a new user');
         });
     });
 
@@ -30,6 +49,17 @@ describe('users', () => {
           lastName: 'perez',
           email: 'pepito.perez@wolox.com',
           password: 'Holahola23'
+        })
+        .then(() => {
+          return chai
+            .request(server)
+            .post('/users/')
+            .send({
+              firstName: 'pepito',
+              lastName: 'perez',
+              email: 'pepito.perez@wolox.com',
+              password: 'Holahola23'
+            });
         })
         .catch(err => {
           err.should.have.status(400);
