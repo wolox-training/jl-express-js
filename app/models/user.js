@@ -45,6 +45,5 @@ module.exports = (sequelize, DataTypes) => {
         }
         throw errors.databaseError(err);
       });
-
   return User;
 };
