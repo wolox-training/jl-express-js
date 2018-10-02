@@ -1,19 +1,41 @@
 'use strict';
 
-const validateEmail = email => /^\w+([\.-]?\w+)@wolox+(\.\w{2,3})+$/.test(email),
-  validatePassword = password => /^(?=\w*\d)(?=\w*[A-Z])(?=\w*[a-z])\S{8,}$/.test(password);
-
-const fillErrorsArray = (array, message) => {
-  array.push(message);
+const validateEmail = user => {
+  if (!/^\w+([\.-]?\w+)@wolox+(\.\w{2,3})+$/.test(user.email))
+    return { valid: false, message: 'invalid email' };
+  return { valid: true };
 };
 
-exports.validateUser = user => {
-  const signErrors = [];
-  if (!validateEmail(user.email)) fillErrorsArray(signErrors, 'invalid email');
-  if (!validatePassword(user.password)) fillErrorsArray(signErrors, 'invalid password');
+const validatePassword = user => {
+  if (!/^(?=\w*\d)(?=\w*[A-Z])(?=\w*[a-z])\S{8,}$/.test(user.password))
+    return { valid: false, message: 'invalid password' };
+  return { valid: true };
+};
 
+const validateMissingValues = user => {
   for (const member in user) {
-    if (user[member] === undefined) fillErrorsArray(signErrors, 'missing value');
+    if (user[member] === undefined) return { message: 'missing value' };
   }
-  return signErrors;
+  return { valid: true };
 };
+
+const arrayValidations = [validateEmail, validatePassword, validateMissingValues];
+
+const checkValidations = (validations, object) =>
+  validations.reduce(
+    (result, validation) => {
+      const validationResult = validation(object);
+
+      if (!validationResult.valid) {
+        result.valid = false;
+        result.messages.push(validationResult.message);
+      }
+      return result;
+    },
+    {
+      valid: true,
+      messages: []
+    }
+  );
+
+exports.validateUser = user => checkValidations(arrayValidations, user);
