@@ -2,16 +2,13 @@ const chai = require('chai'),
   dictum = require('dictum.js'),
   server = require('./../app'),
   User = require('../app/models').users,
+  expect = chai.expect,
   should = chai.should();
-
-beforeEach(async function() {
-  await User.deleteAll();
-});
 
 describe('users', () => {
   describe('/users/ POST', () => {
-    it('should create a new user without problems', () => {
-      return chai
+    it('should create a new user without problems', done => {
+      chai
         .request(server)
         .post('/users/')
         .send({
@@ -30,18 +27,18 @@ describe('users', () => {
             }
           });
 
-          chai.expect(users).to.be.a('object');
-          chai.expect(users.password).to.not.equal('12345678a');
-          chai.expect(users.firstName).to.be.a('string');
-          chai.expect(users.firstName).to.be.equal('pepito');
-          chai.expect(users.email).to.be.equal('pepito.perez@wolox.com');
-
+          expect(users).to.be.a('object');
+          expect(users.password).to.not.equal('12345678a');
+          expect(users.firstName).to.be.a('string');
+          expect(users.firstName).to.be.equal('pepito');
+          expect(users.email).to.be.equal('pepito.perez@wolox.com');
           dictum.chai(res, 'create a new user');
+          done();
         });
     });
 
-    it('should fail, email already in use for another user', () => {
-      return chai
+    it('should fail, email already in use for another user', done => {
+      chai
         .request(server)
         .post('/users/')
         .send({
@@ -66,11 +63,13 @@ describe('users', () => {
           err.response.should.be.json;
           err.response.body.should.have.property('message');
           err.response.body.should.have.property('internal_code');
+          expect(err.response.body.internal_code).to.equal('signup_error');
+          done();
         });
     });
 
-    it('should fail creation of user because missing field in the request', () => {
-      return chai
+    it('should fail creation of user because missing field in the request', done => {
+      chai
         .request(server)
         .post('/users')
         .send({
@@ -83,11 +82,13 @@ describe('users', () => {
           err.response.should.be.json;
           err.response.body.should.have.property('message');
           err.response.body.should.have.property('internal_code');
+          expect(err.response.body.internal_code).to.equal('signup_error');
+          done();
         });
     });
 
-    it('should fail creation of user because email is not valid', () => {
-      return chai
+    it('should fail creation of user because email is not valid', done => {
+      chai
         .request(server)
         .post('/users/')
         .send({
@@ -101,11 +102,13 @@ describe('users', () => {
           err.response.should.be.json;
           err.response.body.should.have.property('message');
           err.response.body.should.have.property('internal_code');
+          expect(err.response.body.internal_code).to.equal('signup_error');
+          done();
         });
     });
 
-    it('should fail creation of user because password is not valid', () => {
-      return chai
+    it('should fail creation of user because password is not valid', done => {
+      chai
         .request(server)
         .post('/users/')
         .send({
@@ -119,6 +122,8 @@ describe('users', () => {
           err.response.should.be.json;
           err.response.body.should.have.property('message');
           err.response.body.should.have.property('internal_code');
+          expect(err.response.body.internal_code).to.equal('signup_error');
+          done();
         });
     });
   });

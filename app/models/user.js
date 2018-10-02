@@ -46,20 +46,5 @@ module.exports = (sequelize, DataTypes) => {
         throw errors.databaseError(err);
       });
 
-  User.getUserByEmailAndPassword = email =>
-    User.findOne({
-      where: {
-        email
-      }
-    }).catch(err => {
-      throw errors.databaseError(err);
-    });
-
-  User.deleteAll = () =>
-    User.destroy({
-      where: {},
-      truncate: true
-    });
-
   return User;
 };
