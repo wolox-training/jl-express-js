@@ -20,7 +20,7 @@ exports.singUp = (req, res, next) => {
   const signErrors = validateUser(user);
 
   try {
-    if (signErrors.length) throw errors.signupError(signErrors);
+    if (!signErrors.valid) throw errors.signupError(signErrors.messages);
 
     user.password = bcrypt.hashSync(user.password, salt);
 
