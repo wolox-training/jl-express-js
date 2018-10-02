@@ -1,3 +1,8 @@
+'use strict';
+
+const logger = require('../logger');
+const errors = require('../errors');
+
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
     'users',
@@ -27,5 +32,18 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
+  User.createModel = user =>
+    User.create(user)
+      .then(success => {
+        logger.info(`User ${success.dataValues.firstName} created correctly.`);
+      })
+      .catch(err => {
+        logger.info(`${user.firstName} user no created.`);
+        logger.error(err);
+        if (err.name === 'SequelizeUniqueConstraintError') {
+          throw errors.signupError(['User already exist']);
+        }
+        throw errors.databaseError(err);
+      });
   return User;
 };

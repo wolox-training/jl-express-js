@@ -39,6 +39,7 @@
     "url": "https://github.com/Wolox/js-express-js/issues"
   },
   "dependencies": {
+    "bcrypt": "^3.0.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
@@ -71,7 +72,7 @@
     "istanbul": "^0.4.3",
     "mocha": "^5.0.1",
     "mocha-lcov-reporter": "^1.2.0",
-    "nodemon": "^1.11.0",
+    "nodemon": "^1.18.4",
     "nsp": "^3.2.1",
     "prettier": "^1.8.2",
     "prettier-eslint": "^8.2.1",
