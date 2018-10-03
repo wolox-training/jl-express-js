@@ -5,7 +5,10 @@ const bcrypt = require('bcrypt'),
   salt = bcrypt.genSaltSync(saltRounds),
   errors = require('../errors'),
   { validateUser } = require('./validations'),
-  User = require('../models').users;
+  User = require('../models').users,
+  jwt = require('jwt-simple'),
+  logger = require('../logger'),
+  secret = 'super-secret';
 
 exports.singUp = (req, res, next) => {
   const user = req.body
@@ -48,12 +51,23 @@ exports.singIn = (req, res, next) => {
   try {
     if (!signErrors.valid) throw errors.signInError(signErrors.messages);
 
-    user.password = bcrypt.hashSync(user.password, salt);
+    return User.getUserByEmailAndPassword(user.email)
+      .then(result => {
+        if (!result) throw errors.signInError(['user not registered']);
 
-    return User.createModel(user)
-      .then(() => {
-        res.status(201).send(`User created correctly.`);
-        res.end();
+        bcrypt.compare(user.password, result.password, (err, validPassword) => {
+          if (validPassword) {
+            logger.info(`${result.firstName} logged in.`);
+            const token = jwt.encode({ email: result.email }, secret);
+            res
+              .status(200)
+              .set('auth', token)
+              .send(result);
+            res.end();
+          } else {
+            next(errors.signInError(['Password invalid!']));
+          }
+        });
       })
       .catch(next);
   } catch (err) {

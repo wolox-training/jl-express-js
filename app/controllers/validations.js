@@ -19,8 +19,6 @@ const validateMissingValues = user => {
   return { valid: true };
 };
 
-const arrayValidations = [validateEmail, validatePassword, validateMissingValues];
-
 const checkValidations = (validations, object) =>
   validations.reduce(
     (result, validation) => {
@@ -38,4 +36,5 @@ const checkValidations = (validations, object) =>
     }
   );
 
-exports.validateUser = user => checkValidations(arrayValidations, user);
+exports.validateUser = user =>
+  checkValidations([validateEmail, validatePassword, validateMissingValues], user);
