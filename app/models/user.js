@@ -53,8 +53,9 @@ module.exports = (sequelize, DataTypes) => {
     User.findOne({
       where: {
         email
-      },
-      order: [['createdAt', 'DESC']]
+      }
+    }).catch(err => {
+      throw errors.databaseError(err);
     });
 
   return User;
