@@ -6,9 +6,8 @@ const bcrypt = require('bcrypt'),
   errors = require('../errors'),
   { validateUser } = require('./validations'),
   User = require('../models').users,
-  jwt = require('jwt-simple'),
-  logger = require('../logger'),
-  secret = 'super-secret';
+  { encoder, HEADER } = require('./../services/jwt'),
+  logger = require('../logger');
 
 exports.singUp = (req, res, next) => {
   const user = req.body
@@ -38,7 +37,7 @@ exports.singUp = (req, res, next) => {
   }
 };
 
-exports.singIn = (req, res, next) => {
+exports.singIn = async (req, res, next) => {
   const user = req.body
     ? {
         email: req.body.email,
@@ -51,27 +50,24 @@ exports.singIn = (req, res, next) => {
   try {
     if (!signErrors.valid) throw errors.signInError(signErrors.messages);
 
-    return User.getUserByEmailAndPassword(user.email)
-      .then(result => {
-        if (!result) throw errors.signInError(['user not registered']);
+    const result = await User.getUserBy(user.email);
 
-        bcrypt.compare(user.password, result.password, (err, validPassword) => {
-          if (validPassword) {
-            logger.info(`${result.firstName} logged in.`);
-            const token = jwt.encode({ email: result.email }, secret);
-            res
-              .status(200)
-              .set('auth', token)
-              .send(result);
-            res.end();
-          } else {
-            next(errors.signInError(['Password invalid!']));
-          }
-        });
-      })
-      .catch(next);
+    if (!result) throw errors.signInError('user not registered');
+
+    return bcrypt.compare(user.password, result.password, (err, validPassword) => {
+      if (validPassword) {
+        logger.info(`${result.firstName} logged in.`);
+        const token = encoder({ email: result.email });
+        res
+          .status(200)
+          .set(HEADER, token)
+          .send(result);
+        res.end();
+      } else {
+        next(errors.signInError('Password invalid!'));
+      }
+    });
   } catch (err) {
     next(err);
   }
-  res.send(req.body);
 };
