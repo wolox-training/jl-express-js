@@ -10,6 +10,7 @@ const statusCodes = {
   [errors.DATABASE_ERROR]: 503,
   [errors.SAVING_ERROR]: 400,
   [errors.SIGNUP_ERROR]: 400,
+  [errors.SIGNIN_ERROR]: 400,
   [errors.DEFAULT_ERROR]: 500
 };
 

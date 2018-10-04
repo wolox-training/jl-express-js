@@ -11,3 +11,6 @@ exports.databaseError = message => internalError(message, exports.DATABASE_ERROR
 
 exports.SIGNUP_ERROR = 'signup_error';
 exports.signupError = message => internalError(message, exports.SIGNUP_ERROR);
+
+exports.SIGNIN_ERROR = 'signin_error';
+exports.signInError = message => internalError(message, exports.SIGNIN_ERROR);
