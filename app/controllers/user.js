@@ -9,7 +9,7 @@ const bcrypt = require('bcrypt'),
   { encoder, AUTHORIZATION } = require('../services/sessionManager'),
   logger = require('../logger');
 
-exports.singUp = (req, res, next) => {
+exports.singUp = async (req, res, next) => {
   const user = req.body
     ? {
         firstName: req.body.firstName,
@@ -26,12 +26,9 @@ exports.singUp = (req, res, next) => {
 
     user.password = bcrypt.hashSync(user.password, salt);
 
-    return User.createModel(user)
-      .then(() => {
-        res.status(201).send(`User created correctly.`);
-        res.end();
-      })
-      .catch(next);
+    await User.createModel(user);
+    res.status(201).send(`User created correctly.`);
+    res.end();
   } catch (err) {
     next(err);
   }
