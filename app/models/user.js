@@ -62,8 +62,8 @@ module.exports = (sequelize, DataTypes) => {
       throw errors.databaseError(err);
     });
 
-  User.getAllUserBy = (limit, offset) => {
-    return User.findAndCountAll({
+  User.getAllUserBy = (limit, offset) =>
+    User.findAndCountAll({
       attributes: ['firstName', 'lastName', 'email'],
       offset,
       limit
@@ -71,7 +71,6 @@ module.exports = (sequelize, DataTypes) => {
       logger.error(err);
       throw errors.databaseError(err);
     });
-  };
 
   return User;
 };

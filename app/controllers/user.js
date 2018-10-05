@@ -7,9 +7,10 @@ const bcrypt = require('bcrypt'),
   { validateUser, validateQuery } = require('./validations'),
   User = require('../models').users,
   { encoder, AUTHORIZATION } = require('../services/sessionManager'),
-  logger = require('../logger');
+  logger = require('../logger'),
+  ADMINISTRATOR = 'administrator';
 
-exports.singUp = (req, res, next) => {
+exports.singUp = async (req, res, next) => {
   const user = req.body
     ? {
         firstName: req.body.firstName,
@@ -26,12 +27,9 @@ exports.singUp = (req, res, next) => {
 
     user.password = bcrypt.hashSync(user.password, salt);
 
-    return User.createModel(user)
-      .then(() => {
-        res.status(201).send(`User created correctly.`);
-        res.end();
-      })
-      .catch(next);
+    await User.createModel(user);
+    res.status(201).send(`User created correctly.`);
+    res.end();
   } catch (err) {
     next(err);
   }
@@ -94,27 +92,34 @@ exports.userList = async (req, res, next) => {
   }
 };
 
-exports.singUpAdmins = (req, res, next) => {
-  res.send('pong');
-  // const user = req.body
-  //   ? {
-  //       firstName: req.body.firstName,
-  //       lastName: req.body.lastName,
-  //       email: req.body.email,
-  //       password: req.body.password
-  //     }
-  //   : {};
-  // const signErrors = validateUser(user);
-  // try {
-  //   if (!signErrors.valid) throw errors.signupError(signErrors.messages);
-  //   user.password = bcrypt.hashSync(user.password, salt);
-  //   return User.createModel(user)
-  //     .then(() => {
-  //       res.status(201).send(`User created correctly.`);
-  //       res.end();
-  //     })
-  //     .catch(next);
-  // } catch (err) {
-  //   next(err);
-  // }
+exports.singUpAdmins = async (req, res, next) => {
+  const user = req.body
+    ? {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        password: req.body.password
+      }
+    : {};
+
+  const signErrors = validateUser(user);
+
+  try {
+    if (!signErrors.valid) throw errors.signupError(signErrors.messages);
+
+    user.password = bcrypt.hashSync(user.password, salt);
+
+    const result = await User.getUserBy(user.email);
+    if (result) {
+      result.permission = ADMINISTRATOR;
+      await result.save();
+      res.status(200).end();
+    } else {
+      user.permission = ADMINISTRATOR;
+      await User.createModel(user);
+      res.status(201).send(`User created correctly.`);
+    }
+  } catch (err) {
+    next(err);
+  }
 };
