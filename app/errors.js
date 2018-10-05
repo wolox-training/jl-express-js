@@ -14,3 +14,6 @@ exports.signupError = message => internalError(message, exports.SIGNUP_ERROR);
 
 exports.SIGNIN_ERROR = 'signin_error';
 exports.signInError = message => internalError(message, exports.SIGNIN_ERROR);
+
+exports.QUERY_ERROR = 'query_error';
+exports.queryError = message => internalError(message, exports.QUERY_ERROR);

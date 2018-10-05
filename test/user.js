@@ -3,23 +3,32 @@ const chai = require('chai'),
   server = require('./../app'),
   User = require('../app/models').users,
   expect = chai.expect,
+  config = require('../config'),
   should = chai.should();
 
-const saveUser = () =>
+const userOne = {
+  firstName: 'pepito',
+  lastName: 'perez',
+  email: 'pepito.perez@wolox.com',
+  password: 'Holahola23'
+};
+
+const saveUser = user =>
   chai
     .request(server)
     .post('/users/')
-    .send({
-      firstName: 'pepito',
-      lastName: 'perez',
-      email: 'pepito.perez@wolox.com',
-      password: 'Holahola23'
-    });
+    .send(user);
+
+const login = credentials =>
+  chai
+    .request(server)
+    .post('/users/sessions/')
+    .send(credentials);
 
 describe('users', () => {
   describe('/users/ POST', () => {
     it('should create a new user without problems', done => {
-      saveUser().then(async res => {
+      saveUser(userOne).then(async res => {
         res.should.have.status(201);
         const users = await User.find({
           where: {
@@ -40,7 +49,7 @@ describe('users', () => {
     });
 
     it('should fail, email already in use for another user', done => {
-      saveUser().then(() => {
+      saveUser(userOne).then(() => {
         chai
           .request(server)
           .post('/users/')
@@ -123,95 +132,149 @@ describe('users', () => {
 
   describe('/users/sessions/ POST', () => {
     it('should login an user without problems', done => {
-      saveUser().then(() => {
-        chai
-          .request(server)
-          .post('/users/sessions/')
-          .send({
-            email: 'pepito.perez@wolox.com',
-            password: 'Holahola23'
-          })
-          .then(res => {
-            res.header.should.have.property('authorization');
-            res.should.have.status(200);
-            dictum.chai(res, 'login an user');
-            done();
-          });
+      saveUser(userOne).then(() => {
+        login({
+          email: 'pepito.perez@wolox.com',
+          password: 'Holahola23'
+        }).then(res => {
+          res.header.should.have.property('authorization');
+          res.should.have.status(200);
+          dictum.chai(res, 'login an user');
+          done();
+        });
       });
     });
 
     it('should fail login a user because the email is not registered', done => {
-      saveUser().then(() => {
-        chai
-          .request(server)
-          .post('/users/sessions/')
-          .send({
-            email: 'pepito.paez@wolox.com',
-            password: 'Holahola23'
-          })
-          .catch(err => {
-            err.should.have.status(400);
-            err.response.should.be.json;
-            err.response.body.should.have.property('message');
-            err.response.body.should.have.property('internal_code');
-            expect(err.response.body.internal_code).to.equal('signin_error');
-            done();
-          });
+      saveUser(userOne).then(() => {
+        login({
+          email: 'pepito.paez@wolox.com',
+          password: 'Holahola23'
+        }).catch(err => {
+          err.should.have.status(400);
+          err.response.should.be.json;
+          err.response.body.should.have.property('message');
+          err.response.body.should.have.property('internal_code');
+          expect(err.response.body.internal_code).to.equal('signin_error');
+          done();
+        });
       });
     });
 
     it('should fail login an user because password is not valid', done => {
-      chai
-        .request(server)
-        .post('/users/sessions/')
-        .send({
-          email: 'pepito.perez@wolox.com',
-          password: 'Holahola'
-        })
-        .catch(err => {
-          err.should.have.status(400);
-          err.response.should.be.json;
-          err.response.body.should.have.property('message');
-          err.response.body.should.have.property('internal_code');
-          expect(err.response.body.internal_code).to.equal('signin_error');
-          done();
-        });
+      login({
+        email: 'pepito.perez@wolox.com',
+        password: 'Holahola'
+      }).catch(err => {
+        err.should.have.status(400);
+        err.response.should.be.json;
+        err.response.body.should.have.property('message');
+        err.response.body.should.have.property('internal_code');
+        expect(err.response.body.internal_code).to.equal('signin_error');
+        done();
+      });
     });
 
     it('should fail login an user because email is not valid', done => {
-      chai
-        .request(server)
-        .post('/users/sessions/')
-        .send({
-          email: 'pepito.perez@wolo.com',
-          password: 'Holahola23'
-        })
-        .catch(err => {
-          err.should.have.status(400);
-          err.response.should.be.json;
-          err.response.body.should.have.property('message');
-          err.response.body.should.have.property('internal_code');
-          expect(err.response.body.internal_code).to.equal('signin_error');
-          done();
-        });
+      login({
+        email: 'pepito.perez@wolo.com',
+        password: 'Holahola23'
+      }).catch(err => {
+        err.should.have.status(400);
+        err.response.should.be.json;
+        err.response.body.should.have.property('message');
+        err.response.body.should.have.property('internal_code');
+        expect(err.response.body.internal_code).to.equal('signin_error');
+        done();
+      });
     });
 
     it('should fail login an user because email is not registered', done => {
-      chai
-        .request(server)
-        .post('/users/sessions/')
-        .send({
+      login({
+        email: 'pepito.perez@wolox.com',
+        password: 'Holahola23'
+      }).catch(err => {
+        err.should.have.status(400);
+        err.response.should.be.json;
+        err.response.body.should.have.property('message');
+        err.response.body.should.have.property('internal_code');
+        expect(err.response.body.internal_code).to.equal('signin_error');
+        done();
+      });
+    });
+  });
+
+  describe('/users GET', () => {
+    it('should list all users by pagination without problems because are loged', done => {
+      saveUser(userOne).then(() => {
+        login({
           email: 'pepito.perez@wolox.com',
           password: 'Holahola23'
-        })
-        .catch(err => {
-          err.should.have.status(400);
-          err.response.should.be.json;
-          err.response.body.should.have.property('message');
-          err.response.body.should.have.property('internal_code');
-          expect(err.response.body.internal_code).to.equal('signin_error');
-          done();
+        }).then(res => {
+          chai
+            .request(server)
+            .get('/users?count=1&page=1')
+            .set(config.common.session.header_name, res.headers[config.common.session.header_name])
+            .then(result => {
+              result.should.have.status(200);
+              expect(result).to.be.a('object');
+              dictum.chai(result, 'get all user with pagination');
+              done();
+            });
         });
+      });
+    });
+
+    it('should fail list all users by pagination because token is no sent sent', done => {
+      chai
+        .request(server)
+        .get('/users?count=1&page=1')
+        .catch(err => err.should.have.status(401))
+        .then(() => done());
+    });
+
+    it('should fail list all users by pagination because page number is no sent sent', done => {
+      saveUser(userOne).then(() => {
+        login({
+          email: 'pepito.perez@wolox.com',
+          password: 'Holahola23'
+        }).then(res => {
+          chai
+            .request(server)
+            .get('/users?count=1')
+            .set(config.common.session.header_name, res.headers[config.common.session.header_name])
+            .catch(err => {
+              err.should.have.status(400);
+              err.response.should.be.json;
+              err.response.body.should.have.property('message');
+              err.response.body.should.have.property('internal_code');
+              expect(err.response.body.internal_code).to.equal('query_error');
+              done();
+            });
+        });
+      });
+    });
+
+    it('should fail list all users by pagination because count is no sent sent', done => {
+      saveUser(userOne).then(() => {
+        login({
+          email: 'pepito.perez@wolox.com',
+          password: 'Holahola23'
+        }).then(res => {
+          chai
+            .request(server)
+            .get('/users?page=1')
+            .set(config.common.session.header_name, res.headers[config.common.session.header_name])
+            .catch(err => {
+              err.should.have.status(400);
+              err.response.should.be.json;
+              err.response.body.should.have.property('message');
+              err.response.body.should.have.property('internal_code');
+              expect(err.response.body.internal_code).to.equal('query_error');
+              done();
+            });
+        });
+      });
     });
   });
 });
