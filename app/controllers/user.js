@@ -93,3 +93,28 @@ exports.userList = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.singUpAdmins = (req, res, next) => {
+  res.send('pong');
+  // const user = req.body
+  //   ? {
+  //       firstName: req.body.firstName,
+  //       lastName: req.body.lastName,
+  //       email: req.body.email,
+  //       password: req.body.password
+  //     }
+  //   : {};
+  // const signErrors = validateUser(user);
+  // try {
+  //   if (!signErrors.valid) throw errors.signupError(signErrors.messages);
+  //   user.password = bcrypt.hashSync(user.password, salt);
+  //   return User.createModel(user)
+  //     .then(() => {
+  //       res.status(201).send(`User created correctly.`);
+  //       res.end();
+  //     })
+  //     .catch(next);
+  // } catch (err) {
+  //   next(err);
+  // }
+};
