@@ -225,6 +225,8 @@ describe('users', () => {
             .then(result => {
               result.should.have.status(200);
               expect(result).to.be.a('object');
+              expect(result.body.count).to.be.equal(1);
+              expect(result.body.pages).to.be.equal(1);
               dictum.chai(result, 'get all user with pagination');
               done();
             });
@@ -236,52 +238,14 @@ describe('users', () => {
       chai
         .request(server)
         .get('/users?count=1&page=1')
-        .catch(err => err.should.have.status(401))
-        .then(() => done());
-    });
-
-    it('should fail list all users by pagination because page number is no sent sent', done => {
-      saveUser(userOne).then(() => {
-        login({
-          email: 'pepito.perez@wolox.com',
-          password: 'Holahola23'
-        }).then(res => {
-          chai
-            .request(server)
-            .get('/users?count=1')
-            .set(config.common.session.header_name, res.headers[config.common.session.header_name])
-            .catch(err => {
-              err.should.have.status(400);
-              err.response.should.be.json;
-              err.response.body.should.have.property('message');
-              err.response.body.should.have.property('internal_code');
-              expect(err.response.body.internal_code).to.equal('query_error');
-              done();
-            });
+        .catch(err => {
+          err.should.have.status(401);
+          err.response.should.be.json;
+          err.response.body.should.have.property('message');
+          err.response.body.should.have.property('internal_code');
+          expect(err.response.body.internal_code).to.equal('authorization_error');
+          done();
         });
-      });
-    });
-
-    it('should fail list all users by pagination because count is no sent sent', done => {
-      saveUser(userOne).then(() => {
-        login({
-          email: 'pepito.perez@wolox.com',
-          password: 'Holahola23'
-        }).then(res => {
-          chai
-            .request(server)
-            .get('/users?page=1')
-            .set(config.common.session.header_name, res.headers[config.common.session.header_name])
-            .catch(err => {
-              err.should.have.status(400);
-              err.response.should.be.json;
-              err.response.body.should.have.property('message');
-              err.response.body.should.have.property('internal_code');
-              expect(err.response.body.internal_code).to.equal('query_error');
-              done();
-            });
-        });
-      });
     });
   });
 

@@ -73,15 +73,12 @@ exports.singIn = async (req, res, next) => {
 exports.userList = async (req, res, next) => {
   const query = req.query
     ? {
-        page: req.query.page,
-        count: req.query.count
+        page: req.query.page || 1,
+        count: req.query.count || 10
       }
     : {};
 
-  const queryErrors = validateQuery(query);
-
   try {
-    if (!queryErrors.valid) throw errors.queryError(queryErrors.messages);
     query.offset = parseInt(query.count * (query.page - 1));
 
     const result = await User.getAllUserBy(query.count, query.offset),

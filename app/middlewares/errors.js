@@ -11,7 +11,7 @@ const statusCodes = {
   [errors.SAVING_ERROR]: 400,
   [errors.SIGNUP_ERROR]: 400,
   [errors.SIGNIN_ERROR]: 400,
-  [errors.QUERY_ERROR]: 400,
+  [errors.AUTHORIZATE_ERROR]: 401,
   [errors.DEFAULT_ERROR]: 500
 };
 
