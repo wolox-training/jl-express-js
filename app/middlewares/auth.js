@@ -1,4 +1,5 @@
 const { decoder, AUTHORIZATION } = require('./../services/sessionManager'),
+  errors = require('../errors'),
   User = require('../models').users;
 
 exports.verifyToken = async (req, res, next) => {
@@ -11,11 +12,9 @@ exports.verifyToken = async (req, res, next) => {
     if (result != null) {
       next();
     } else {
-      res.status(401);
-      res.end();
+      next(errors.authorizationError('Token invalid!'));
     }
   } else {
-    res.status(401);
-    res.end();
+    next(errors.authorizationError('Token required!!!'));
   }
 };
