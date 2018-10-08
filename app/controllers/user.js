@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt'),
   errors = require('../errors'),
   { validateUser, validateQuery } = require('./validations'),
   User = require('../models').users,
-  { encoder, AUTHORIZATION } = require('../services/sessionManager'),
+  { encoder, decoder, AUTHORIZATION } = require('../services/sessionManager'),
   logger = require('../logger'),
   ADMINISTRATOR = 'administrator';
 
@@ -93,33 +93,43 @@ exports.userList = async (req, res, next) => {
 };
 
 exports.singUpAdmins = async (req, res, next) => {
-  const user = req.body
-    ? {
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        password: req.body.password
+  const auth = req.headers[AUTHORIZATION];
+
+  const plainText = decoder(auth);
+
+  const requester = await User.getUserBy(plainText.email);
+
+  if (requester.permission === 'administrator') {
+    const user = req.body
+      ? {
+          firstName: req.body.firstName,
+          lastName: req.body.lastName,
+          email: req.body.email,
+          password: req.body.password
+        }
+      : {};
+
+    const signErrors = validateUser(user);
+
+    try {
+      if (!signErrors.valid) throw errors.signupError(signErrors.messages);
+
+      user.password = bcrypt.hashSync(user.password, salt);
+
+      const result = await User.getUserBy(user.email);
+      if (result) {
+        result.permission = ADMINISTRATOR;
+        await result.save();
+        res.status(200).send(`User updated succesfully.`);
+      } else {
+        user.permission = ADMINISTRATOR;
+        await User.createModel(user);
+        res.status(201).send(`User created correctly.`);
       }
-    : {};
-
-  const signErrors = validateUser(user);
-
-  try {
-    if (!signErrors.valid) throw errors.signupError(signErrors.messages);
-
-    user.password = bcrypt.hashSync(user.password, salt);
-
-    const result = await User.getUserBy(user.email);
-    if (result) {
-      result.permission = ADMINISTRATOR;
-      await result.save();
-      res.status(200).end();
-    } else {
-      user.permission = ADMINISTRATOR;
-      await User.createModel(user);
-      res.status(201).send(`User created correctly.`);
+    } catch (err) {
+      next(err);
     }
-  } catch (err) {
-    next(err);
+  } else {
+    res.status(401).end();
   }
 };

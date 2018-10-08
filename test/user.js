@@ -13,6 +13,13 @@ const userOne = {
   password: 'Holahola23'
 };
 
+const anotherUser = {
+  firstName: 'pepito',
+  lastName: 'paez',
+  email: 'pepito.paez@wolox.com',
+  password: 'Holahola23'
+};
+
 const saveUser = user =>
   chai
     .request(server)
@@ -271,6 +278,71 @@ describe('users', () => {
               err.response.body.should.have.property('message');
               err.response.body.should.have.property('internal_code');
               expect(err.response.body.internal_code).to.equal('query_error');
+              done();
+            });
+        });
+      });
+    });
+  });
+
+  describe('/admin/users/ POST', () => {
+    it('should fail because is not an admin requester', done => {
+      saveUser(userOne).then(() => {
+        login({
+          email: 'pepito.perez@wolox.com',
+          password: 'Holahola23'
+        }).then(res => {
+          chai
+            .request(server)
+            .post('/admin/users/')
+            .set(config.common.session.header_name, res.headers[config.common.session.header_name])
+            .send(anotherUser)
+            .catch(err => {
+              err.should.have.status(401);
+              done();
+            });
+        });
+      });
+    });
+
+    it('should signup an admin user without problems because the requester is admin', done => {
+      const admin = new User({
+        firstName: 'pepito',
+        lastName: 'perez',
+        email: 'pepito.perez@wolox.com',
+        password: '$2b$10$o38Z3gJJLeKcMOYKuf1IV.P8jDKMU08Aa/dIw9k9fwS1z7y8TnC1S',
+        permission: 'administrator'
+      });
+
+      admin.save().then(() => {
+        login({
+          email: 'pepito.perez@wolox.com',
+          password: 'Holahola23'
+        }).then(res => {
+          chai
+            .request(server)
+            .post('/admin/users/')
+            .set(config.common.session.header_name, res.headers[config.common.session.header_name])
+            .send(anotherUser)
+            .then(async result => {
+              result.should.have.status(201);
+              expect(result).to.be.a('object');
+
+              const users = await User.find({
+                where: {
+                  firstName: 'pepito',
+                  lastName: 'paez',
+                  email: 'pepito.paez@wolox.com'
+                }
+              });
+
+              expect(users).to.be.a('object');
+              expect(users.password).to.not.equal('12345678a');
+              expect(users.firstName).to.be.a('string');
+              expect(users.firstName).to.be.equal('pepito');
+              expect(users.email).to.be.equal('pepito.paez@wolox.com');
+              expect(users.permission).to.be.equal('administrator');
+              dictum.chai(result, 'create a new admin user');
               done();
             });
         });

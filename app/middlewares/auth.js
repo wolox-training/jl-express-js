@@ -8,14 +8,12 @@ exports.verifyToken = async (req, res, next) => {
     const user = decoder(auth);
     const result = await User.getUserBy(user.email);
 
-    if (result != null) {
+    if (result) {
       next();
     } else {
-      res.status(401);
-      res.end();
+      res.status(401).end();
     }
   } else {
-    res.status(401);
-    res.end();
+    res.status(401).end();
   }
 };
