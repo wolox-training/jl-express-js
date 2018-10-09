@@ -17,3 +17,6 @@ exports.signInError = message => internalError(message, exports.SIGNIN_ERROR);
 
 exports.AUTHORIZATE_ERROR = 'authorization_error';
 exports.authorizationError = message => internalError(message, exports.AUTHORIZATE_ERROR);
+
+exports.ALBUMS_API_ERROR = 'albums_api_error';
+exports.albumsApiError = message => internalError(message, exports.ALBUMS_API_ERROR);

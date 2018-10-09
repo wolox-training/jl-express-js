@@ -4,33 +4,8 @@ const chai = require('chai'),
   User = require('../app/models').users,
   expect = chai.expect,
   config = require('../config'),
+  { saveUser, login, userOne, anotherUser } = require('./util'),
   should = chai.should();
-
-const userOne = {
-  firstName: 'pepito',
-  lastName: 'perez',
-  email: 'pepito.perez@wolox.com',
-  password: 'Holahola23'
-};
-
-const anotherUser = {
-  firstName: 'pepito',
-  lastName: 'paez',
-  email: 'pepito.paez@wolox.com',
-  password: 'Holahola23'
-};
-
-const saveUser = user =>
-  chai
-    .request(server)
-    .post('/users/')
-    .send(user);
-
-const login = credentials =>
-  chai
-    .request(server)
-    .post('/users/sessions/')
-    .send(credentials);
 
 describe('users', () => {
   describe('/users/ POST', () => {
