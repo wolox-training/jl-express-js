@@ -38,3 +38,5 @@ const checkValidations = (validations, object) =>
 
 exports.validateUser = user =>
   checkValidations([validateEmail, validatePassword, validateMissingValues], user);
+
+exports.validateQuery = query => checkValidations([validateMissingValues], query);
