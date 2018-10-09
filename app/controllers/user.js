@@ -8,7 +8,7 @@ const bcrypt = require('bcrypt'),
   User = require('../models').users,
   { encoder, decoder, AUTHORIZATION } = require('../services/sessionManager'),
   logger = require('../logger'),
-  ADMINISTRATOR = 'administrator';
+  { permission } = require('./enum');
 
 exports.singUp = async (req, res, next) => {
   const user = req.body
@@ -96,7 +96,7 @@ exports.singUpAdmins = async (req, res, next) => {
 
   const requester = await User.getUserBy(plainText.email);
 
-  if (requester.permission === 'administrator') {
+  if (requester.permission === permission.ADMINISTRATOR) {
     const user = req.body
       ? {
           firstName: req.body.firstName,
@@ -114,19 +114,21 @@ exports.singUpAdmins = async (req, res, next) => {
       user.password = bcrypt.hashSync(user.password, salt);
 
       const result = await User.getUserBy(user.email);
+      let valueMessage = '';
       if (result) {
-        result.permission = ADMINISTRATOR;
+        result.permission = permission.ADMINISTRATOR;
         await result.save();
-        res.status(200).send(`User updated succesfully.`);
+        valueMessage = 'updated';
       } else {
-        user.permission = ADMINISTRATOR;
-        await User.createModel(user);
-        res.status(201).send(`User created correctly.`);
+        user.permission = permission.ADMINISTRATOR;
+        await User.createAdminUser(user);
+        valueMessage = 'created';
       }
+      res.status(201).send(`User ${valueMessage} correctly.`);
     } catch (err) {
       next(err);
     }
   } else {
-    res.status(401).end();
+    next(errors.authorizationError('Is not an admin user'));
   }
 };
