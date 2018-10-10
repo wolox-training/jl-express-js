@@ -72,7 +72,7 @@ module.exports = (sequelize, DataTypes) => {
       throw errors.databaseError(err);
     });
 
-  User.createAdminUser = user =>
+  User.createAdmin = user =>
     User.upsert(user).catch(err => {
       logger.info(`${user.firstName} user no created.`);
       logger.error(err);

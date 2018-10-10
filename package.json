@@ -4,7 +4,7 @@
   "description": "kickoff for expressjs applications",
   "engines": {
     "node": "8.9.4",
-    "npm": "2.14.2"
+    "npm": "5.6.0"
   },
   "scripts": {
     "console": "node console.js",
@@ -39,7 +39,6 @@
     "url": "https://github.com/Wolox/js-express-js/issues"
   },
   "dependencies": {
-    "bcrypt": "^3.0.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
     "express": "^4.16.2",

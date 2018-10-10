@@ -1,10 +1,10 @@
 'use strict';
 
-const bcrypt = require('bcrypt'),
+const bcrypt = require('bcryptjs'),
   saltRounds = 10,
   salt = bcrypt.genSaltSync(saltRounds),
   errors = require('../errors'),
-  { validateUser, validateQuery } = require('./validations'),
+  { validateUser, validateAdmin } = require('./validations'),
   User = require('../models').users,
   { encoder, decoder, AUTHORIZATION } = require('../services/sessionManager'),
   logger = require('../logger'),
@@ -94,9 +94,13 @@ exports.singUpAdmins = async (req, res, next) => {
 
   const plainText = decoder(auth);
 
-  const requester = await User.getUserBy(plainText.email);
+  try {
+    const requester = await User.getUserBy(plainText.email);
 
-  if (requester.permission === permission.ADMINISTRATOR) {
+    const permissionsErrors = validateAdmin(requester);
+
+    if (!permissionsErrors.valid) throw errors.authorizationError(permissionsErrors.messages);
+
     const user = req.body
       ? {
           firstName: req.body.firstName,
@@ -107,28 +111,15 @@ exports.singUpAdmins = async (req, res, next) => {
       : {};
 
     const signErrors = validateUser(user);
+    if (!signErrors.valid) throw errors.signupError(signErrors.messages);
 
-    try {
-      if (!signErrors.valid) throw errors.signupError(signErrors.messages);
+    user.password = bcrypt.hashSync(user.password, salt);
+    user.permission = permission.ADMINISTRATOR;
 
-      user.password = bcrypt.hashSync(user.password, salt);
+    await User.createAdmin(user);
 
-      const result = await User.getUserBy(user.email);
-      let valueMessage = '';
-      if (result) {
-        result.permission = permission.ADMINISTRATOR;
-        await result.save();
-        valueMessage = 'updated';
-      } else {
-        user.permission = permission.ADMINISTRATOR;
-        await User.createAdminUser(user);
-        valueMessage = 'created';
-      }
-      res.status(201).send(`User ${valueMessage} correctly.`);
-    } catch (err) {
-      next(err);
-    }
-  } else {
-    next(errors.authorizationError('Is not an admin user'));
+    res.status(201).send(`User created correctly.`);
+  } catch (err) {
+    next(err);
   }
 };
