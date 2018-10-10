@@ -1,6 +1,6 @@
 'use strict';
 
-const bcrypt = require('bcrypt'),
+const bcrypt = require('bcryptjs'),
   saltRounds = 10,
   salt = bcrypt.genSaltSync(saltRounds),
   errors = require('../errors'),
