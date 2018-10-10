@@ -1,14 +1,22 @@
 const chai = require('chai'),
   dictum = require('dictum.js'),
+  nock = require('nock'),
   server = require('./../app'),
   expect = chai.expect,
   config = require('../config'),
   { saveUser, login, userOne } = require('./util'),
+  { albums } = require('./albumsMocker'),
   should = chai.should();
 
 describe('albums', () => {
-  describe('/users GET', () => {
-    it('should list all users by pagination without problems because are loged', done => {
+  beforeEach(() => {
+    nock(config.common.albumsApi.url)
+      .get('')
+      .reply(200, albums);
+  });
+
+  describe('/albums/ GET', () => {
+    it('should list albums without problems because are loged', done => {
       saveUser(userOne).then(() => {
         login({
           email: 'pepito.perez@wolox.com',
@@ -16,24 +24,26 @@ describe('albums', () => {
         }).then(res => {
           chai
             .request(server)
-            .get('/users?count=1&page=1')
+            .get('/albums/')
             .set(config.common.session.header_name, res.headers[config.common.session.header_name])
             .then(result => {
               result.should.have.status(200);
+              result.should.be.json;
               expect(result).to.be.a('object');
-              expect(result.body.count).to.be.equal(1);
-              expect(result.body.pages).to.be.equal(1);
-              dictum.chai(result, 'get all user with pagination');
+              result.body[0].should.have.property('userId');
+              expect(result.body[0].userId).to.be.equal(1);
+              expect(result.body[0].title).to.be.equal('quidem molestiae enim');
+              dictum.chai(result, 'get albums');
               done();
             });
         });
       });
     });
 
-    it('should fail list all users by pagination because token is no sent or user is no loged', done => {
+    it('should fail list albums because token is no sent or user is no loged', done => {
       chai
         .request(server)
-        .get('/users?count=1&page=1')
+        .get('/albums/')
         .catch(err => {
           err.should.have.status(401);
           err.response.should.be.json;
