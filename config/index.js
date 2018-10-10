@@ -50,7 +50,7 @@ const config = {
       environment: process.env.ROLLBAR_ENV
     },
     albumsApi: {
-      url: process.env.ALBUMS_API_URL
+      url: 'https://jsonplaceholder.typicode.com/albums'
     }
   }
 };
