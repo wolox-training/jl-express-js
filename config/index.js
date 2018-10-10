@@ -51,7 +51,8 @@ const config = {
     },
     albumsApi: {
       url: 'https://jsonplaceholder.typicode.com/albums'
-    }
+    },
+    port: process.env.PORT
   }
 };
 
