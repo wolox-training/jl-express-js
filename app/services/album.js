@@ -6,8 +6,10 @@ const axios = require('axios'),
   logger = require('../logger'),
   url = config.common.albumsApi.url;
 
-exports.getAll = () =>
-  axios.get(url).catch(err => {
+exports.getAll = async source => {
+  const data = await axios.get(`${url}${source}`).catch(err => {
     logger.error(err);
     throw errors.albumsApiError(err);
   });
+  return data.data;
+};

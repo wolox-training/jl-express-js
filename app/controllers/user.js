@@ -4,30 +4,36 @@ const bcrypt = require('bcryptjs'),
   saltRounds = 10,
   salt = bcrypt.genSaltSync(saltRounds),
   errors = require('../errors'),
-  { validateUser, validateQuery } = require('./validations'),
+  { validateUser, validateAdmin } = require('./validations'),
   User = require('../models').users,
   { encoder, decoder, AUTHORIZATION } = require('../services/sessionManager'),
   logger = require('../logger'),
   { permission } = require('./enum');
 
-exports.singUp = async (req, res, next) => {
-  const user = req.body
+const userParser = data => {
+  const user = data
     ? {
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        password: req.body.password
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        password: data.password
       }
     : {};
 
   const signErrors = validateUser(user);
 
-  try {
-    if (!signErrors.valid) throw errors.signupError(signErrors.messages);
+  if (!signErrors.valid) throw errors.signupError(signErrors.messages);
 
-    user.password = bcrypt.hashSync(user.password, salt);
+  user.password = bcrypt.hashSync(user.password, salt);
+  return user;
+};
+
+exports.singUp = async (req, res, next) => {
+  try {
+    const user = userParser(req.body);
 
     await User.createModel(user);
+
     res.status(201).send(`User created correctly.`);
     res.end();
   } catch (err) {
@@ -90,45 +96,15 @@ exports.userList = async (req, res, next) => {
 };
 
 exports.singUpAdmins = async (req, res, next) => {
-  const auth = req.headers[AUTHORIZATION];
+  try {
+    const user = userParser(req.body);
 
-  const plainText = decoder(auth);
+    user.permission = permission.ADMINISTRATOR;
 
-  const requester = await User.getUserBy(plainText.email);
+    await User.createAdmin(user);
 
-  if (requester.permission === permission.ADMINISTRATOR) {
-    const user = req.body
-      ? {
-          firstName: req.body.firstName,
-          lastName: req.body.lastName,
-          email: req.body.email,
-          password: req.body.password
-        }
-      : {};
-
-    const signErrors = validateUser(user);
-
-    try {
-      if (!signErrors.valid) throw errors.signupError(signErrors.messages);
-
-      user.password = bcrypt.hashSync(user.password, salt);
-
-      const result = await User.getUserBy(user.email);
-      let valueMessage = '';
-      if (result) {
-        result.permission = permission.ADMINISTRATOR;
-        await result.save();
-        valueMessage = 'updated';
-      } else {
-        user.permission = permission.ADMINISTRATOR;
-        await User.createAdminUser(user);
-        valueMessage = 'created';
-      }
-      res.status(201).send(`User ${valueMessage} correctly.`);
-    } catch (err) {
-      next(err);
-    }
-  } else {
-    next(errors.authorizationError('Is not an admin user'));
+    res.status(201).send(`User created correctly.`);
+  } catch (err) {
+    next(err);
   }
 };
