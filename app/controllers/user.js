@@ -10,24 +10,30 @@ const bcrypt = require('bcryptjs'),
   logger = require('../logger'),
   { permission } = require('./enum');
 
-exports.singUp = async (req, res, next) => {
-  const user = req.body
+const userParser = data => {
+  const user = data
     ? {
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        password: req.body.password
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        password: data.password
       }
     : {};
 
   const signErrors = validateUser(user);
 
-  try {
-    if (!signErrors.valid) throw errors.signupError(signErrors.messages);
+  if (!signErrors.valid) throw errors.signupError(signErrors.messages);
 
-    user.password = bcrypt.hashSync(user.password, salt);
+  user.password = bcrypt.hashSync(user.password, salt);
+  return user;
+};
+
+exports.singUp = async (req, res, next) => {
+  try {
+    const user = userParser(req.body);
 
     await User.createModel(user);
+
     res.status(201).send(`User created correctly.`);
     res.end();
   } catch (err) {
@@ -90,30 +96,9 @@ exports.userList = async (req, res, next) => {
 };
 
 exports.singUpAdmins = async (req, res, next) => {
-  const auth = req.headers[AUTHORIZATION];
-
-  const plainText = decoder(auth);
-
   try {
-    const requester = await User.getUserBy(plainText.email);
+    const user = userParser(req.body);
 
-    const permissionsErrors = validateAdmin(requester);
-
-    if (!permissionsErrors.valid) throw errors.authorizationError(permissionsErrors.messages);
-
-    const user = req.body
-      ? {
-          firstName: req.body.firstName,
-          lastName: req.body.lastName,
-          email: req.body.email,
-          password: req.body.password
-        }
-      : {};
-
-    const signErrors = validateUser(user);
-    if (!signErrors.valid) throw errors.signupError(signErrors.messages);
-
-    user.password = bcrypt.hashSync(user.password, salt);
     user.permission = permission.ADMINISTRATOR;
 
     await User.createAdmin(user);

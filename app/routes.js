@@ -1,11 +1,11 @@
 'use strict';
 
 const { singUp, singIn, userList, singUpAdmins } = require('./controllers/user'),
-  { verifyToken } = require('./middlewares/auth');
+  { verifyToken, verifyPermission } = require('./middlewares/auth');
 
 exports.init = app => {
   app.post('/users/', singUp);
   app.post('/users/sessions/', singIn);
   app.get('/users/', verifyToken, userList);
-  app.post('/admin/users/', verifyToken, singUpAdmins);
+  app.post('/admin/users/', [verifyToken, verifyPermission], singUpAdmins);
 };
