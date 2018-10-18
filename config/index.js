@@ -49,6 +49,9 @@ const config = {
       accessToken: process.env.ROLLBAR_ACCESS_TOKEN,
       environment: process.env.ROLLBAR_ENV
     },
+    albumsApi: {
+      url: process.env.API_URL || 'https://jsonplaceholder.typicode.com'
+    },
     port: process.env.PORT
   }
 };
