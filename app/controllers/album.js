@@ -5,13 +5,12 @@ const errors = require('../errors'),
   Album = require('../models').albums,
   logger = require('../logger');
 
-exports.albumList = (req, res, next) => {
-  return getAlbums('/albums')
+exports.albumList = (req, res, next) =>
+  getAlbums('/albums')
     .then(albums => {
       res.status(200).send(albums);
     })
     .catch(next);
-};
 
 exports.buyAnAlbum = async (req, res, next) => {
   try {
