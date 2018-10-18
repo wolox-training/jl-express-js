@@ -4,9 +4,9 @@ const bcrypt = require('bcryptjs'),
   saltRounds = 10,
   salt = bcrypt.genSaltSync(saltRounds),
   errors = require('../errors'),
-  { validateUser, validateAdmin } = require('./validations'),
+  { validateUser } = require('./validations'),
   User = require('../models').users,
-  { encoder, decoder, AUTHORIZATION } = require('../services/sessionManager'),
+  { encoder, AUTHORIZATION } = require('../services/sessionManager'),
   logger = require('../logger'),
   { permission } = require('./enum');
 

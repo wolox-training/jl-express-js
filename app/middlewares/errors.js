@@ -10,6 +10,7 @@ const statusCodes = {
   [errors.DATABASE_ERROR]: 503,
   [errors.SAVING_ERROR]: 400,
   [errors.SIGNUP_ERROR]: 400,
+  [errors.ALBUM_ORDER_ERROR]: 400,
   [errors.SIGNIN_ERROR]: 400,
   [errors.AUTHORIZATE_ERROR]: 401,
   [errors.ALBUMS_API_ERROR]: 503,
