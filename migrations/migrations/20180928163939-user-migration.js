@@ -27,6 +27,12 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      permission: {
+        type: Sequelize.ENUM,
+        values: ['regular', 'administrator'],
+        defaultValue: 'regular',
+        allowNull: false
+      },
       created_at: Sequelize.DATE,
       updated_at: Sequelize.DATE,
       deleted_at: Sequelize.DATE

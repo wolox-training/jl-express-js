@@ -23,6 +23,12 @@ module.exports = (sequelize, DataTypes) => {
       password: {
         type: DataTypes.STRING,
         allowNull: false
+      },
+      permission: {
+        type: DataTypes.ENUM,
+        values: ['regular', 'administrator'],
+        defaultValue: 'regular',
+        allowNull: false
       }
     },
     {
@@ -56,8 +62,8 @@ module.exports = (sequelize, DataTypes) => {
       throw errors.databaseError(err);
     });
 
-  User.getAllUserBy = (limit, offset) => {
-    return User.findAndCountAll({
+  User.getAllUserBy = (limit, offset) =>
+    User.findAndCountAll({
       attributes: ['firstName', 'lastName', 'email'],
       offset,
       limit
@@ -65,7 +71,13 @@ module.exports = (sequelize, DataTypes) => {
       logger.error(err);
       throw errors.databaseError(err);
     });
-  };
+
+  User.createAdmin = user =>
+    User.upsert(user).catch(err => {
+      logger.info(`${user.firstName} user no created.`);
+      logger.error(err);
+      throw errors.defaultDatabase(err);
+    });
 
   return User;
 };

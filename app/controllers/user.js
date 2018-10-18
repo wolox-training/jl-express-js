@@ -1,32 +1,39 @@
 'use strict';
 
-const bcrypt = require('bcrypt'),
+const bcrypt = require('bcryptjs'),
   saltRounds = 10,
   salt = bcrypt.genSaltSync(saltRounds),
   errors = require('../errors'),
-  { validateUser, validateQuery } = require('./validations'),
+  { validateUser, validateAdmin } = require('./validations'),
   User = require('../models').users,
-  { encoder, AUTHORIZATION } = require('../services/sessionManager'),
-  logger = require('../logger');
+  { encoder, decoder, AUTHORIZATION } = require('../services/sessionManager'),
+  logger = require('../logger'),
+  { permission } = require('./enum');
 
-exports.singUp = async (req, res, next) => {
-  const user = req.body
+const userParser = data => {
+  const user = data
     ? {
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        password: req.body.password
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        password: data.password
       }
     : {};
 
   const signErrors = validateUser(user);
 
-  try {
-    if (!signErrors.valid) throw errors.signupError(signErrors.messages);
+  if (!signErrors.valid) throw errors.signupError(signErrors.messages);
 
-    user.password = bcrypt.hashSync(user.password, salt);
+  user.password = bcrypt.hashSync(user.password, salt);
+  return user;
+};
+
+exports.singUp = async (req, res, next) => {
+  try {
+    const user = userParser(req.body);
 
     await User.createModel(user);
+
     res.status(201).send(`User created correctly.`);
     res.end();
   } catch (err) {
@@ -83,6 +90,20 @@ exports.userList = async (req, res, next) => {
     const result = await User.getAllUserBy(query.count, query.offset),
       pages = Math.ceil(result.count / query.count);
     res.json({ users: result.rows, count: result.count, pages });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.singUpAdmins = async (req, res, next) => {
+  try {
+    const user = userParser(req.body);
+
+    user.permission = permission.ADMINISTRATOR;
+
+    await User.createAdmin(user);
+
+    res.status(201).send(`User created correctly.`);
   } catch (err) {
     next(err);
   }
