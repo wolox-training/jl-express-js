@@ -1,12 +1,12 @@
 'use strict';
 
 const errors = require('../errors'),
-  { getAlbums } = require('../services/album'),
+  { getResouces } = require('../services/album'),
   Album = require('../models').albums,
   logger = require('../logger');
 
 exports.albumList = (req, res, next) =>
-  getAlbums('/albums')
+  getResouces('/albums')
     .then(albums => {
       res.status(200).send(albums);
     })
@@ -14,7 +14,7 @@ exports.albumList = (req, res, next) =>
 
 exports.buyAnAlbum = async (req, res, next) => {
   try {
-    const album = await getAlbums(`/albums/${req.params.id}`);
+    const album = await getResouces(`/albums/${req.params.id}`);
 
     const newAlbum = {
       albumId: album.id,
