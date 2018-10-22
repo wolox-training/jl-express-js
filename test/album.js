@@ -180,6 +180,7 @@ describe('albums', () => {
               expect(err.response.request.req.res.body.message).to.be.equal(
                 'Request failed with status code 404'
               );
+              err.should.have.status(404);
               done();
             });
         });

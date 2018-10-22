@@ -14,6 +14,7 @@ const statusCodes = {
   [errors.SIGNIN_ERROR]: 400,
   [errors.AUTHORIZATE_ERROR]: 401,
   [errors.ALBUMS_API_ERROR]: 503,
+  [errors.ALBUM_NOT_FOUND]: 404,
   [errors.DEFAULT_ERROR]: 500
 };
 

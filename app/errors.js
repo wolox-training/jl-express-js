@@ -23,3 +23,6 @@ exports.albumsApiError = message => internalError(message, exports.ALBUMS_API_ER
 
 exports.ALBUM_ORDER_ERROR = 'album_order_error';
 exports.albumOrderError = message => internalError(message, exports.ALBUM_ORDER_ERROR);
+
+exports.ALBUM_NOT_FOUND = 'album_not_found';
+exports.albumNotFound = message => internalError(message, exports.ALBUM_NOT_FOUND);
