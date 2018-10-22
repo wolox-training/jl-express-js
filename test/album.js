@@ -159,7 +159,7 @@ describe('albums', () => {
       });
     });
 
-    it('should fail because the album does not exist', done => {
+    it('should fail because the album is not found', done => {
       nock(`${url}/10`)
         .get('')
         .reply(404, 'missing album');
