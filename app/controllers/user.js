@@ -108,3 +108,19 @@ exports.singUpAdmins = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.invalidateAll = async (req, res, next) => {
+  try {
+    const secret =
+      Math.random()
+        .toString(36)
+        .substring(2, 12) +
+      Math.random()
+        .toString(36)
+        .substring(2, 12);
+    // console.log('random', r);
+    res.status(200).send(`random: ${secret}`);
+  } catch (err) {
+    next(err);
+  }
+};
