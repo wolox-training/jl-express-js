@@ -1,7 +1,7 @@
 'use strict';
 
 const { singUp, singIn, userList, singUpAdmins } = require('./controllers/user'),
-  { albumList, buyAnAlbum, listPurchasedAlbums } = require('./controllers/album'),
+  { albumList, buyAnAlbum, listPurchasedAlbums, listAlbumsPhotos } = require('./controllers/album'),
   { verifyToken, verifyPermission, verifyAccessLevel } = require('./middlewares/auth');
 
 exports.init = app => {
@@ -11,5 +11,6 @@ exports.init = app => {
   app.get('/albums/', verifyToken, albumList);
   app.post('/albums/:id', verifyToken, buyAnAlbum);
   app.get('/users/:user_id/albums', [verifyToken, verifyAccessLevel], listPurchasedAlbums);
+  app.get('/users/albums/:id/photos', verifyToken, listAlbumsPhotos);
   app.post('/admin/users/', [verifyToken, verifyPermission], singUpAdmins);
 };
