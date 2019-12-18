@@ -1,6 +1,7 @@
 'use strict';
 
 const graphqlHTTP = require('express-graphql'),
+  { schema, root } = require('./schemas/album'),
   { singUp, singIn, userList, singUpAdmins, invalidateAll } = require('./controllers/user'),
   { albumList, buyAnAlbum, listPurchasedAlbums, listAlbumsPhotos } = require('./controllers/album'),
   { verifyToken, verifyPermission, verifyAccessLevel } = require('./middlewares/auth');
@@ -19,6 +20,9 @@ exports.init = app => {
   app.use(
     '/graphql',
     graphqlHTTP({
+      // schema: '/schemas/schema.graphql',
+      schema,
+      rootValue: root,
       graphiql: true
     })
   );

@@ -6,7 +6,7 @@ const axios = require('axios'),
   logger = require('../logger'),
   url = config.common.albumsApi.url;
 
-exports.getResouces = source =>
+exports.getResources = source =>
   axios
     .get(`${url}${source}`)
     .then(res => res.data)

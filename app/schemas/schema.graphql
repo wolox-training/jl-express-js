@@ -1,0 +1,14 @@
+type Query {
+    albums: [Album],
+    album(id: Int!): Album
+}
+
+type Mutation {
+    updateAlbum(id: Int!, title: String!): Album
+}
+
+type Album {
+    userId: Int,
+    id: Int,
+    title: String
+}

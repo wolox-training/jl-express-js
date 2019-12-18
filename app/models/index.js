@@ -6,6 +6,10 @@ const fs = require('fs'),
   dbConfig = require('../../config/db')[config.environment],
   db = {};
 
+console.log('############### DB #############');
+console.log(dbConfig);
+console.log('###################################');
+
 const sequelize = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, dbConfig);
 
 fs
