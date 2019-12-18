@@ -3,9 +3,12 @@ const { decoder, AUTHORIZATION } = require('../services/sessionManager'),
   { permission } = require('../controllers/enum'),
   User = require('../models').users;
 
-const getUser = async auth => {
-  const user = decoder(auth),
-    result = await User.getUserBy(user.email);
+const getUser = async (auth, next) => {
+  const user = decoder(auth);
+
+  if (user.expiration <= Date.now()) next(errors.authorizationError('Access token has expired'));
+
+  const result = await User.getUserBy(user.email);
   return result;
 };
 
@@ -13,14 +16,14 @@ exports.verifyToken = async (req, res, next) => {
   const auth = req.headers[AUTHORIZATION];
 
   if (auth) {
-    const user = await getUser(auth);
+    const user = await getUser(auth, next);
     if (user) {
       next();
     } else {
-      next(errors.authorizationError('Token invalid!'));
+      next(errors.authorizationError('Access Token is invalid!'));
     }
   } else {
-    next(errors.authorizationError('Token required!!!'));
+    next(errors.authorizationError('Access Token is required!!!'));
   }
 };
 

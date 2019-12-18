@@ -1,13 +1,13 @@
 'use strict';
 
-const { getResouces } = require('../services/album'),
+const { getResources } = require('../services/album'),
   { decoder, AUTHORIZATION } = require('../services/sessionManager'),
   errors = require('../errors'),
   User = require('../models').users,
   Album = require('../models').albums;
 
 exports.albumList = (req, res, next) =>
-  getResouces('/albums')
+  getResources('/albums')
     .then(albums => {
       res.status(200).send(albums);
     })
@@ -15,7 +15,7 @@ exports.albumList = (req, res, next) =>
 
 exports.buyAnAlbum = async (req, res, next) => {
   try {
-    const album = await getResouces(`/albums/${req.params.id}`);
+    const album = await getResources(`/albums/${req.params.id}`);
 
     const newAlbum = {
       albumId: album.id,
@@ -48,7 +48,7 @@ exports.listAlbumsPhotos = async (req, res, next) => {
 
     if (!albums.length) throw errors.albumNotFound('the user do not have this album yet');
 
-    const photos = await getResouces(`/albums/${albums[0].albumId}/photos`);
+    const photos = await getResources(`/albums/${albums[0].albumId}/photos`);
 
     res.status(200).send(photos);
   } catch (error) {
