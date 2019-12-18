@@ -1,7 +1,5 @@
 'use strict';
 
-const { permission } = require('./enum');
-
 const validateEmail = user => {
   if (!/^\w+([\.-]?\w+)@wolox+(\.\w{2,3})+$/.test(user.email))
     return { valid: false, message: 'invalid email' };

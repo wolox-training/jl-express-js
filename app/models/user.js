@@ -1,7 +1,7 @@
 'use strict';
 
-const logger = require('../logger');
-const errors = require('../errors');
+const logger = require('../logger'),
+  errors = require('../errors');
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
@@ -37,6 +37,10 @@ module.exports = (sequelize, DataTypes) => {
       underscored: true
     }
   );
+
+  User.associate = models => {
+    User.hasMany(models.albums, { foreignKey: 'userId' });
+  };
 
   User.createModel = user =>
     User.create(user)

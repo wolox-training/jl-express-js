@@ -6,10 +6,14 @@ const axios = require('axios'),
   logger = require('../logger'),
   url = config.common.albumsApi.url;
 
-exports.getAll = async source => {
-  const data = await axios.get(`${url}${source}`).catch(err => {
-    logger.error(err);
-    throw errors.albumsApiError(err);
-  });
-  return data.data;
-};
+exports.getResouces = source =>
+  axios
+    .get(`${url}${source}`)
+    .then(res => res.data)
+    .catch(err => {
+      logger.error(err);
+
+      if (err.response.status === 404) throw errors.albumNotFound(err.message);
+
+      throw errors.albumsApiError(err.message);
+    });

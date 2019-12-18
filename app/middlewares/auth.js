@@ -32,3 +32,13 @@ exports.verifyPermission = async (req, res, next) => {
   if (user.permission === permission.REGULAR) next(errors.authorizationError('Is not an admin user'));
   next();
 };
+
+exports.verifyAccessLevel = async (req, res, next) => {
+  const auth = req.headers[AUTHORIZATION];
+
+  const user = await getUser(auth);
+
+  if (parseInt(user.id) !== parseInt(req.params.user_id) && user.permission === permission.REGULAR)
+    next(errors.authorizationError('Only can access to your albums'));
+  next();
+};
